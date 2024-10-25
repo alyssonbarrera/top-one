@@ -29,6 +29,13 @@ export class InMemoryCartsRepository implements CartsRepository {
     return this.carts.find((cart) => cart.id.toString() === id) || null
   }
 
+  async findByIdWithProducts(id: string) {
+    return (
+      this.cartsWithProducts.find((cart) => cart.cartId.toString() === id) ||
+      null
+    )
+  }
+
   async findByClientId(clientId: string) {
     return (
       this.carts.find((cart) => cart.clientId.toString() === clientId) || null

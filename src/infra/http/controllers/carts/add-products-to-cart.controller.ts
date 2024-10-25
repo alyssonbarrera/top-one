@@ -60,10 +60,11 @@ export class AddProductsToCartController {
       }
     }
 
-    const { cart } = result.value
+    const { cart, notFoundProducts } = result.value
 
     return {
       cart: CartWithTotalPricePresenter.toHTTP(cart),
+      notFoundProducts,
     }
   }
 }

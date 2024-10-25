@@ -9,6 +9,7 @@ export const orderSubject = z.tuple([
     z.literal('get'),
     z.literal('update'),
     z.literal('delete'),
+    z.literal('update-status'),
   ]),
   z.union([z.literal('Order'), orderSchema]),
 ])

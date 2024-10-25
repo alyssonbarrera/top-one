@@ -28,7 +28,7 @@ export const permissions: Record<Role, PermissionsByRole> = {
   },
 
   VENDOR: (user, { can, cannot }) => {
-    can(['manage', 'get', 'update', 'delete'], 'Order', {
+    can(['manage', 'get', 'update', 'update-status', 'delete'], 'Order', {
       vendorId: {
         $eq: user.id,
       },
@@ -39,6 +39,12 @@ export const permissions: Record<Role, PermissionsByRole> = {
     cannot('update', 'Order', {
       status: {
         $eq: OrderStatus.SENT,
+      },
+    })
+
+    cannot('update-status', 'Order', {
+      status: {
+        $eq: OrderStatus.DELIVERED,
       },
     })
 

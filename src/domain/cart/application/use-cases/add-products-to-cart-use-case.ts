@@ -28,6 +28,7 @@ type AddProductsToCartUseCaseResponse = Either<
   ForbiddenError | ClientNotFoundError,
   {
     cart: CartWithTotalPrice
+    notFoundProducts?: string[]
   }
 >
 
@@ -95,6 +96,9 @@ export class AddProductsToCartUseCase {
 
       return right({
         cart: finalCart,
+        notFoundProducts: notFoundProducts.length
+          ? notFoundProducts.map((product) => product.productId)
+          : undefined,
       })
     }
 
@@ -138,6 +142,9 @@ export class AddProductsToCartUseCase {
 
     return right({
       cart: finalCart,
+      notFoundProducts: notFoundProducts.length
+        ? notFoundProducts.map((product) => product.productId)
+        : undefined,
     })
   }
 }

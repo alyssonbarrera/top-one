@@ -50,8 +50,8 @@ export class UpdateOrderStatusUseCase {
       status: order.status,
     })
 
-    if (cannot('update', vendorOrder)) {
-      return left(new ForbiddenError('update', 'order'))
+    if (cannot('update-status', vendorOrder)) {
+      return left(new ForbiddenError('update-status', 'order'))
     }
 
     Order.updateStatus(order, status)
