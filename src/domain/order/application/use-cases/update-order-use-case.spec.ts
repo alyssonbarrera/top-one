@@ -175,4 +175,24 @@ describe('Create Order Use Case', () => {
     expect(result.isLeft()).toBeTruthy()
     expect(result.value).toBeInstanceOf(ForbiddenError)
   })
+
+  it('should be able to delete a order if products quantity is equal to zero', async () => {
+    inMemoryProductsRepository.items.push(product)
+    inMemoryOrdersRepository.items.push(order)
+
+    const result = await sut.execute({
+      id: order.id.toString(),
+      status: OrderStatus.PROCESSING,
+      currentUser,
+      items: [
+        {
+          productId: product.id.toString(),
+          quantity: 0,
+        },
+      ],
+    })
+
+    expect(result.isRight()).toBeTruthy()
+    expect(inMemoryOrdersRepository.items).toHaveLength(0)
+  })
 })

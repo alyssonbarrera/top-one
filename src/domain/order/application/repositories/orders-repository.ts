@@ -11,6 +11,12 @@ export type FindAllOrdersParams = {
   }
 }
 
+export type UpdateWithItemsParams = {
+  order: Order
+  items: OrderItem[]
+  itemsToDelete?: OrderItem[]
+}
+
 export abstract class OrdersRepository {
   abstract save(data: Order): Promise<Order>
   abstract saveWithItems(order: Order, items: OrderItem[]): Promise<Order>
@@ -31,7 +37,7 @@ export abstract class OrdersRepository {
   abstract findByVendorId(vendorId: string): Promise<Order[]>
 
   abstract update(data: Order): Promise<Order>
-  abstract updateWithItems(order: Order, items: OrderItem[]): Promise<Order>
+  abstract updateWithItems(params: UpdateWithItemsParams): Promise<Order>
 
   abstract delete(id: string): Promise<void>
 }

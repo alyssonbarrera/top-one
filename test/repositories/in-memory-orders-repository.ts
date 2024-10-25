@@ -3,6 +3,7 @@ import { DomainEvents } from '@/core/events/domain-events'
 import {
   FindAllOrdersParams,
   OrdersRepository,
+  UpdateWithItemsParams,
 } from '@/domain/order/application/repositories/orders-repository'
 import { Order } from '@/domain/order/enterprise/entities/order'
 import { OrderItem } from '@/domain/order/enterprise/entities/order-item'
@@ -78,20 +79,34 @@ export class InMemoryOrdersRepository implements OrdersRepository {
     return order
   }
 
-  async updateWithItems(order: Order, items: OrderItem[]): Promise<Order> {
+  async updateWithItems({
+    order,
+    items,
+    itemsToDelete = [],
+  }: UpdateWithItemsParams): Promise<Order> {
     const index = this.items.findIndex(
       (item) => item.id.toString() === order.id.toString(),
     )
+    if (index !== -1) {
+      this.items[index] = order
+    } else {
+      this.items.push(order)
+    }
 
-    this.items[index] = order
+    if (itemsToDelete.length) {
+      this.orderItems = this.orderItems.filter(
+        (item) =>
+          !itemsToDelete.some((itemToDelete) =>
+            itemToDelete.id.equals(item.id),
+          ),
+      )
+    }
 
     this.orderItems = this.orderItems.filter(
       (item) => item.orderId.toString() !== order.id.toString(),
     )
 
     this.orderItems.push(...items)
-
-    DomainEvents.dispatchEventsForAggregate(order.id)
 
     return order
   }

@@ -30,6 +30,7 @@ type ProcessItemProps = {
   orderOrderId: UniqueEntityID
   itemsPrice: number[]
   updatedOrderItems: OrderItem[]
+  deletedOrderItems: OrderItem[]
 }
 
 type CreateOrderProps = {
@@ -52,6 +53,7 @@ export class OrderProcessor {
     const itemsPrice: number[] = []
     const notFoundProducts: string[] = []
     const updatedOrderItems: OrderItem[] = []
+    const deletedOrderItems: OrderItem[] = []
     const orderOrderId = order?.id ?? new UniqueEntityID()
 
     let totalPrice = order?.totalPrice ?? new Decimal(0)
@@ -64,6 +66,7 @@ export class OrderProcessor {
       orderOrderId,
       itemsPrice,
       updatedOrderItems,
+      deletedOrderItems,
     })
 
     const itemsTotalPrice = itemsPrice.reduce((acc, price) => acc + price, 0)
@@ -80,7 +83,12 @@ export class OrderProcessor {
 
     order.totalPrice = totalPrice
 
-    return { order, orderItems: updatedOrderItems, notFoundProducts }
+    return {
+      order,
+      orderItems: updatedOrderItems,
+      orderItemsToDelete: deletedOrderItems,
+      notFoundProducts,
+    }
   }
 
   private processItem({
@@ -91,6 +99,7 @@ export class OrderProcessor {
     orderOrderId,
     notFoundProducts,
     updatedOrderItems,
+    deletedOrderItems,
   }: ProcessItemProps) {
     items.forEach((item) => {
       const product = this.findProduct(item.productId, products)
@@ -106,6 +115,11 @@ export class OrderProcessor {
             orderItem.productId.equals(product.id) &&
             orderItem.orderId.equals(orderOrderId),
         )
+
+      if (existingOrderItem && item.quantity === 0) {
+        deletedOrderItems.push(existingOrderItem)
+        return
+      }
 
       const itemPrice =
         existingOrderItem?.price ?? this.calculateItemPrice(item, product)

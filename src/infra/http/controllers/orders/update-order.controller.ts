@@ -71,7 +71,9 @@ export class UpdateOrderController {
       }
     }
 
-    const { order, notFoundProducts } = result.value
+    const { order, message, notFoundProducts } = result.value
+
+    if (message) return { message }
 
     return {
       order: OrderPresenter.toHTTP(order),

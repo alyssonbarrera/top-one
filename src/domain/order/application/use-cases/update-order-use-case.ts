@@ -38,6 +38,7 @@ type UpdateOrderUseCaseResponse = Either<
   ForbiddenError | OrderNotFoundError,
   {
     order: Order
+    message?: string
     notFoundProducts?: string[]
   }
 >
@@ -93,6 +94,14 @@ export class UpdateOrderUseCase {
           currentUser,
         })
 
+      if (!updatedOrder) {
+        return right({
+          order,
+          notFoundProducts,
+          message: 'Order has been deleted because it has no items',
+        })
+      }
+
       return right({
         order: updatedOrder,
         notFoundProducts,
@@ -116,6 +125,7 @@ export class UpdateOrderUseCase {
     const products = await this.productsRepository.findByIds(productsIds)
 
     const {
+      orderItemsToDelete,
       order: processedOrder,
       orderItems: processedOrderItems,
       notFoundProducts: processedNotFoundProducts,
@@ -134,10 +144,20 @@ export class UpdateOrderUseCase {
           !processedNotFoundProducts.includes(orderItem.productId.toString()),
       )
 
-    await this.ordersRepository.updateWithItems(
-      processedOrder,
-      processedOrderItemsWithoutNotFoundProducts,
-    )
+    await this.ordersRepository.updateWithItems({
+      order: processedOrder,
+      items: processedOrderItemsWithoutNotFoundProducts,
+      itemsToDelete: orderItemsToDelete,
+    })
+
+    if (processedOrder.totalPrice.toNumber() === 0) {
+      await this.ordersRepository.delete(processedOrder.id.toString())
+
+      return {
+        order: null,
+        notFoundProducts: processedNotFoundProducts,
+      }
+    }
 
     return {
       order: processedOrder,

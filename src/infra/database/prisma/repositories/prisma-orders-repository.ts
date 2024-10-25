@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common'
 
+import { Prisma } from '@prisma/client'
+
 import { DomainEvents } from '@/core/events/domain-events'
 
 import {
   FindAllOrdersParams,
   OrdersRepository,
+  UpdateWithItemsParams,
 } from '@/domain/order/application/repositories/orders-repository'
 import { Order } from '@/domain/order/enterprise/entities/order'
 import { OrderItem } from '@/domain/order/enterprise/entities/order-item'
@@ -154,8 +157,12 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return PrismaOrderMapper.toDomain(order)
   }
 
-  async updateWithItems(order: Order, items: OrderItem[]) {
-    const [updatedOrder] = await this.prisma.$transaction([
+  async updateWithItems({
+    order,
+    items,
+    itemsToDelete = [],
+  }: UpdateWithItemsParams) {
+    const operations: Prisma.PrismaPromise<any>[] = [
       this.prisma.order.update({
         where: { id: order.id.toString() },
         data: PrismaOrderMapper.toPrisma(order),
@@ -166,7 +173,21 @@ export class PrismaOrdersRepository implements OrdersRepository {
       this.prisma.orderItem.createMany({
         data: items.map(PrismaOrderItemsMapper.toPrisma),
       }),
-    ])
+    ]
+
+    if (itemsToDelete.length) {
+      operations.push(
+        this.prisma.orderItem.deleteMany({
+          where: {
+            id: {
+              in: itemsToDelete.map((orderItem) => orderItem.id.toString()),
+            },
+          },
+        }),
+      )
+    }
+
+    const [updatedOrder] = await this.prisma.$transaction(operations)
 
     return PrismaOrderMapper.toDomain(updatedOrder)
   }
