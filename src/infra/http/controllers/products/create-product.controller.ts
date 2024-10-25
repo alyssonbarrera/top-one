@@ -22,8 +22,8 @@ import { ProductPresenter } from '../../presenters/product-presenter'
 const createProductBodySchema = z.object({
   name: z.string(),
   description: z.string(),
-  price: z.coerce.number(),
-  discount: z.coerce.number().nullish(),
+  price: z.coerce.number().min(0),
+  discount: z.coerce.number().min(0).max(100).nullish(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createProductBodySchema)

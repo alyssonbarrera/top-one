@@ -24,7 +24,7 @@ const updateProductBodySchema = z.object({
   name: z.string().nullish(),
   description: z.string().nullish(),
   price: z.coerce.number().min(0).nullish(),
-  discount: z.coerce.number().max(100).nullish(),
+  discount: z.coerce.number().min(0).max(100).nullish(),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(updateProductBodySchema)

@@ -24,7 +24,7 @@ describe('Create Client Use Case', () => {
     name: faker.person.fullName(),
     email: faker.internet.email(),
     phone: faker.phone.number(),
-    address: faker.address.streetAddress(),
+    address: faker.location.streetAddress(),
   }
   const currentUser = {
     sub: defaultVendor.id.toString(),

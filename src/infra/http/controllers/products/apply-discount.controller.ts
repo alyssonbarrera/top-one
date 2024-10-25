@@ -21,7 +21,7 @@ import { ZodValidationPipe } from '../../pipes/zod-validation-pipe'
 import { ProductPresenter } from '../../presenters/product-presenter'
 
 const applyDiscountBodySchema = z.object({
-  discount: z.coerce.number().max(100),
+  discount: z.coerce.number().min(0).max(100),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(applyDiscountBodySchema)
