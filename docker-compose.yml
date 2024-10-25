@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  top-one:
+    container_name: top-one-database
+    image: bitnami/postgresql
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=top-one-database
