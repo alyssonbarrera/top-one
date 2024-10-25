@@ -16,7 +16,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**'],
-      exclude: ['**/infra/**', '**/core/**', '**/utils/**'],
+      exclude: ['**/infra/**', '**/core/**', '**/utils/**', '**/enterprise/**'],
     },
   },
   plugins: [

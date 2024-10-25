@@ -23,7 +23,7 @@ import { ProductPresenter } from '../../presenters/product-presenter'
 const updateProductBodySchema = z.object({
   name: z.string().nullish(),
   description: z.string().nullish(),
-  price: z.coerce.number().nullish(),
+  price: z.coerce.number().min(0).nullish(),
   discount: z.coerce.number().max(100).nullish(),
 })
 

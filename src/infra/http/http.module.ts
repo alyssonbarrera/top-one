@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 
 import { AddProductsToCartUseCase } from '@/domain/cart/application/use-cases/add-products-to-cart-use-case'
 import { FinishCartAndCreateOrderUseCase } from '@/domain/cart/application/use-cases/finish-cart-and-create-order-use-case'
@@ -52,7 +54,16 @@ import { CryptographyModule } from '../cryptography/cryptography.module'
 import { DatabaseModule } from '../database/database.module'
 
 @Module({
-  imports: [DatabaseModule, CryptographyModule],
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
+    DatabaseModule,
+    CryptographyModule,
+  ],
   controllers: [
     AuthenticateUserController,
     ChangeUserPasswordController,
@@ -82,6 +93,11 @@ import { DatabaseModule } from '../database/database.module'
     FinishCartAndCreateOrderController,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+
     AuthenticateUserUseCase,
     ChangeUserPasswordUseCase,
 

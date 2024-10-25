@@ -7,6 +7,7 @@ import { UserRole } from '@/core/enums/user-role'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
 import { ApplyDiscountUseCase } from './apply-discount-use-case'
+import { ProductNotFoundError } from './errors/product-not-found-error'
 
 let inMemoryProductsRepository: InMemoryProductsRepository
 let sut: ApplyDiscountUseCase
@@ -50,6 +51,19 @@ describe('Apply Discount Use Case', () => {
         ownerId: defaultVendor.id,
       }),
     )
+  })
+
+  it('should not be able to apply a discount to a product when product does not exist', async () => {
+    const discount = 10
+
+    const result = await sut.execute({
+      id: '123',
+      currentUser,
+      discount,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ProductNotFoundError)
   })
 
   it('should not be able to apply a discount to a product if the user is has no permission', async () => {

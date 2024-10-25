@@ -1,3 +1,5 @@
+import { makeCartItem } from '@test/factories/make-cart-item'
+import { makeCartWithProducts } from '@test/factories/make-cart-with-products'
 import { makeClient } from '@test/factories/make-client'
 import { makeProduct } from '@test/factories/make-product'
 import { makeUser } from '@test/factories/make-user'
@@ -9,6 +11,8 @@ import Decimal from 'decimal.js'
 
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { UserRole } from '@/core/enums/user-role'
+
+import { ClientNotFoundError } from '@/domain/client/application/use-cases/errors/client-not-found-error'
 
 import { AddProductsToCartUseCase } from './add-products-to-cart-use-case'
 import { CartProcessor } from './helpers/cart-processor'
@@ -127,6 +131,76 @@ describe('Add Products To Cart Use Case', () => {
             productOne.price.toNumber() * 3 + productTwo.price.toNumber() * 7,
         }),
         notFoundProducts: undefined,
+      }),
+    )
+  })
+
+  it('should not be able to add products to a cart when client does not exist', async () => {
+    inMemoryProductsRepository.items.push(productOne, productTwo)
+
+    const result = await sut.execute({
+      clientId: client.id.toString(),
+      products: cartData.products,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ClientNotFoundError)
+  })
+
+  it('should not be able to add products that do not exist to a cart', async () => {
+    inMemoryClientsRepository.items.push(client)
+    inMemoryProductsRepository.items.push(productOne)
+
+    const result = await sut.execute({
+      clientId: client.id.toString(),
+      products: cartData.products,
+    })
+
+    expect(result.isRight()).toBeTruthy()
+    expect(result.value).toEqual(
+      expect.objectContaining({
+        cart: expect.objectContaining({
+          cartId: expect.any(UniqueEntityID),
+          clientId: client.id,
+          totalPrice: productOne.price.toNumber() * 5,
+        }),
+        notFoundProducts: expect.arrayContaining([productTwo.id.toString()]),
+      }),
+    )
+  })
+
+  it('should not be able to add products that do not exist to a cart when cart already exists', async () => {
+    const cart = makeCartWithProducts({
+      clientId: client.id,
+    })
+
+    const cartItem = makeCartItem({
+      cartId: cart.cartId,
+      productId: productOne.id,
+      quantity: 5,
+    })
+
+    cart.products.push(cartItem)
+
+    inMemoryCartsRepository.cartsWithProducts.push(cart)
+    inMemoryCartItemsRepository.items.push(cartItem)
+    inMemoryClientsRepository.items.push(client)
+    inMemoryProductsRepository.items.push(productOne)
+
+    const result = await sut.execute({
+      clientId: client.id.toString(),
+      products: cartData.products,
+    })
+
+    expect(result.isRight()).toBeTruthy()
+    expect(result.value).toEqual(
+      expect.objectContaining({
+        cart: expect.objectContaining({
+          cartId: expect.any(UniqueEntityID),
+          clientId: client.id,
+          totalPrice: productOne.price.toNumber() * 5,
+        }),
+        notFoundProducts: expect.arrayContaining([productTwo.id.toString()]),
       }),
     )
   })

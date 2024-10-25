@@ -4,11 +4,11 @@ import { CartItem } from '@/domain/cart/enterprise/entities/cart-item'
 import { CartWithProducts } from '@/domain/cart/enterprise/value-objects/cart-with-products'
 
 export class InMemoryCartsRepository implements CartsRepository {
-  public carts: Cart[] = []
+  public items: Cart[] = []
   public cartsWithProducts: CartWithProducts[] = []
 
   async save(data: Cart) {
-    this.carts.push(data)
+    this.items.push(data)
 
     return data
   }
@@ -26,7 +26,7 @@ export class InMemoryCartsRepository implements CartsRepository {
   }
 
   async findById(id: string) {
-    return this.carts.find((cart) => cart.id.toString() === id) || null
+    return this.items.find((cart) => cart.id.toString() === id) || null
   }
 
   async findByIdWithProducts(id: string) {
@@ -38,7 +38,7 @@ export class InMemoryCartsRepository implements CartsRepository {
 
   async findByClientId(clientId: string) {
     return (
-      this.carts.find((cart) => cart.clientId.toString() === clientId) || null
+      this.items.find((cart) => cart.clientId.toString() === clientId) || null
     )
   }
 
@@ -51,21 +51,21 @@ export class InMemoryCartsRepository implements CartsRepository {
   }
 
   async update(data: Cart) {
-    const index = this.carts.findIndex(
+    const index = this.items.findIndex(
       (cart) => cart.id.toString() === data.id.toString(),
     )
 
-    this.carts[index] = data
+    this.items[index] = data
   }
 
   async delete(id: string) {
-    const index = this.carts.findIndex((cart) => cart.id.toString() === id)
+    const index = this.items.findIndex((cart) => cart.id.toString() === id)
 
-    this.carts.splice(index, 1)
+    this.items.splice(index, 1)
   }
 
   async deleteByClientId(clientId: string) {
-    this.carts = this.carts.filter(
+    this.items = this.items.filter(
       (cart) => cart.clientId.toString() !== clientId,
     )
   }

@@ -7,6 +7,7 @@ import { UserRole } from '@/core/enums/user-role'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
 import { DeleteOrderUseCase } from './delete-order-use-case'
+import { OrderNotFoundError } from './errors/order-not-found-error'
 
 let inMemoryOrdersRepository: InMemoryOrdersRepository
 let sut: DeleteOrderUseCase
@@ -45,6 +46,16 @@ describe('Delete Order Use Case', () => {
     })
 
     expect(result.isRight()).toBeTruthy()
+  })
+
+  it('should not be able to delete a order when order does not exist', async () => {
+    const result = await sut.execute({
+      id: '123',
+      currentUser,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(OrderNotFoundError)
   })
 
   it('should not be able to delete a order when user is not allowed', async () => {

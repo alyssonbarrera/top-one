@@ -7,6 +7,7 @@ import { InMemoryOrdersRepository } from '@test/repositories/in-memory-orders-re
 import { UserRole } from '@/core/enums/user-role'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
+import { OrderNotFoundError } from './errors/order-not-found-error'
 import { GetOrderByIdUseCase } from './get-order-by-id-use-case'
 
 let inMemoryOrdersRepository: InMemoryOrdersRepository
@@ -68,6 +69,16 @@ describe('Get Order By Id Use Case', () => {
         }),
       }),
     )
+  })
+
+  it('should not be able to get a order when order does not exist', async () => {
+    const result = await sut.execute({
+      currentUser,
+      id: '123',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(OrderNotFoundError)
   })
 
   it('should not be able to get a order when user is not allowed', async () => {

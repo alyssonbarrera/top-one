@@ -17,6 +17,7 @@ import { CreateOrderUseCase } from '@/domain/order/application/use-cases/create-
 import { OrderProcessor } from '@/domain/order/application/use-cases/helpers/order-processor'
 import { calculateItemPrice } from '@/utils/calculate-item-price'
 
+import { CartNotFoundError } from './errors/cart-not-found-error'
 import { FinishCartAndCreateOrderUseCase } from './finish-cart-and-create-order-use-case'
 
 let inMemoryCartsRepository: InMemoryCartsRepository
@@ -103,6 +104,16 @@ describe('Finish Cart And Create Order Use Case', () => {
         }),
       }),
     )
+  })
+
+  it("should not be able to finish a cart and create a order if the cart doesn't exist", async () => {
+    const result = await sut.execute({
+      currentUser,
+      id: cart.id.toString(),
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(CartNotFoundError)
   })
 
   it('should not be able to finish a cart and create a order with a non-vendor user', async () => {

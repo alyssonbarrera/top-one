@@ -7,6 +7,7 @@ import Decimal from 'decimal.js'
 import { UserRole } from '@/core/enums/user-role'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
+import { ProductNotFoundError } from './errors/product-not-found-error'
 import { UpdateProductUseCase } from './update-product-use-case'
 
 let inMemoryProductsRepository: InMemoryProductsRepository
@@ -56,6 +57,51 @@ describe('Update Product Use Case', () => {
         ownerId: defaultVendor.id,
       }),
     )
+  })
+
+  it('should not be able to update a product that does not exist', async () => {
+    const updatedProduct = {
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      discount: 0,
+      price: 100,
+    }
+
+    const result = await sut.execute({
+      id: '123',
+      currentUser,
+      ...updatedProduct,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ProductNotFoundError)
+  })
+
+  it('should no be able to apply a discount if user has no permission', async () => {
+    const product = makeProduct({
+      ownerId: defaultVendor.id,
+    })
+
+    inMemoryProductsRepository.items.push(product)
+
+    const updatedProduct = {
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      discount: 10,
+      price: 100,
+    }
+
+    const result = await sut.execute({
+      id: product.id.toString(),
+      currentUser: {
+        sub: defaultVendor.id.toString(),
+        role: UserRole.VENDOR,
+      },
+      ...updatedProduct,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ForbiddenError)
   })
 
   it('should not be able to update a product with a non-admin user', async () => {

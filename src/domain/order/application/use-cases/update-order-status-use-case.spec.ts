@@ -7,6 +7,7 @@ import { OrderStatus } from '@/core/enums/order-status'
 import { UserRole } from '@/core/enums/user-role'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
+import { OrderNotFoundError } from './errors/order-not-found-error'
 import { UpdateOrderStatusUseCase } from './update-order-status-use-case'
 
 let inMemoryOrdersRepository: InMemoryOrdersRepository
@@ -57,6 +58,16 @@ describe('Update Order Use Case', () => {
         totalPrice: order.totalPrice,
       }),
     )
+  })
+
+  it('should not be able to update a order when order does not exist', async () => {
+    const result = await sut.execute({
+      ...orderData,
+      id: '123',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(OrderNotFoundError)
   })
 
   it('should not be able to update a order when user is not allowed', async () => {
