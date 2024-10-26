@@ -11,8 +11,7 @@ type CalculateItemPriceProps = {
  * @param {CalculateItemPriceProps} props - The properties required to calculate the item price.
  * @param {Decimal} props.price - The original price of the item.
  * @param {Decimal} props.discount - The discount percentage to be applied.
- * @param {number} props.quantity - The quantity of items.
- * @returns {Decimal} The final price after applying the discount.
+ * @returns {Decimal} - The final price of the item after the discount is applied.
  */
 export function calculateItemPrice({
   price,

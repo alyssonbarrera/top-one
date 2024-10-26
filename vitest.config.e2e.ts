@@ -9,9 +9,9 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['**/*.e2e-spec.ts'],
-    globals: true,
     root: './',
+    globals: true,
+    include: ['**/*.e2e-spec.ts'],
     setupFiles: ['./test/setup-e2e.ts'],
   },
   plugins: [

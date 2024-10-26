@@ -7,6 +7,7 @@ import {
   ForbiddenException,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common'
 
 import { z } from 'zod'
@@ -15,6 +16,7 @@ import { ForbiddenError } from '@/core/errors/forbidden-error'
 
 import { ClientAlreadyExistsError } from '@/domain/client/application/use-cases/errors/client-already-exists-error'
 import { ClientNotFoundError } from '@/domain/client/application/use-cases/errors/client-not-found-error'
+import { InvalidEmailError } from '@/domain/client/application/use-cases/errors/invalid-email-error'
 import { UpdateClientUseCase } from '@/domain/client/application/use-cases/update-client-use-case'
 import { CurrentUser } from '@/infra/auth/decorators/current-user.decorator'
 import { UserPayload } from '@/infra/auth/strategies/jwt.strategy'
@@ -60,6 +62,8 @@ export class UpdateClientController {
       switch (error.constructor) {
         case ForbiddenError:
           throw new ForbiddenException(error.message)
+        case InvalidEmailError:
+          throw new BadRequestException(error.message)
         case ClientNotFoundError:
           throw new NotFoundException(error.message)
         case ClientAlreadyExistsError:

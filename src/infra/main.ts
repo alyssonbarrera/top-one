@@ -13,6 +13,16 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api')
 
-  await app.listen(port)
+  app
+    .listen(port)
+    .then(() =>
+      console.log(
+        `\x1b[1m\x1b[32mHTTP server is running on port \x1b[34m${port} 🚀`,
+      ),
+    )
+    .catch((error) =>
+      console.error(`⚠️ An error occurred while starting the server: ${error}`),
+    )
 }
+
 bootstrap()

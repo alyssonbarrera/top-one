@@ -9,14 +9,15 @@ export default defineConfig({
     },
   },
   test: {
-    env: { NODE_ENV: 'test' },
-    globals: true,
     root: './',
+    globals: true,
+    env: { NODE_ENV: 'test' },
+    testTimeout: 10000,
     setupFiles: ['./test/setup.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**'],
-      exclude: ['**/infra/**', '**/core/**', '**/utils/**', '**/enterprise/**'],
+      exclude: ['**/infra/**', '**/core/**', '**/enterprise/**'],
     },
   },
   plugins: [

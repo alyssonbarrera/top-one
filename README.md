@@ -24,12 +24,39 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API for store inventory and sales management
 
 ## Installation
 
 ```bash
 $ pnpm install
+```
+
+## Create database
+```bash
+$ docker compose up -d
+```
+
+## Generate Prisma Client
+
+```bash
+$ pnpm run db:generate
+```
+
+## Run Database Migrations
+
+```bash
+# development
+$ pnpm run db:migrate
+
+# production
+$ pnpm run db:deploy
+```
+
+## Run Prisma Seed
+
+```bash
+$ pnpm run db:seed
 ```
 
 ## Running the app
@@ -99,7 +126,7 @@ $ pnpm run test:cov
 - [x] It should be able to add a product to the cart;
 - [x] It should be able to finish the cart and create an order;
 
-## RBAC
+## ABAC
 
 Roles & permissions.
 

@@ -2,10 +2,9 @@ import type { AbilityBuilder } from '@casl/ability'
 
 import { OrderStatus } from '@/core/enums/order-status'
 
-import { User } from './models/user'
 import { Role } from './roles'
 
-import type { AppAbility } from './index'
+import type { AppAbility, User } from './index'
 
 type PermissionsByRole = (
   user: User,

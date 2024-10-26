@@ -8,6 +8,7 @@ import { ForbiddenError } from '@/core/errors/forbidden-error'
 
 import { ClientAlreadyExistsError } from './errors/client-already-exists-error'
 import { ClientNotFoundError } from './errors/client-not-found-error'
+import { InvalidEmailError } from './errors/invalid-email-error'
 import { UpdateClientUseCase } from './update-client-use-case'
 
 let inMemoryClientsRepository: InMemoryClientsRepository
@@ -76,6 +77,24 @@ describe('Update Client Use Case', () => {
 
     expect(result.isLeft()).toBeTruthy()
     expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should not be able to update a client with an invalid email', async () => {
+    const client = makeClient({
+      createdByUserId: defaultUser.id,
+    })
+
+    inMemoryClientsRepository.items.push(client)
+
+    const result = await sut.execute({
+      id: client.id.toString(),
+      currentUser,
+      ...defaultUpdatedClient,
+      email: 'invalid-email',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(InvalidEmailError)
   })
 
   it('should not be able to update a client that does not exist', async () => {

@@ -6,7 +6,7 @@ import { OrderStatus } from '@/core/enums/order-status'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
 import { ProductsRepository } from '@/domain/product/application/repositories/products-repository'
-import { orderSchema } from '@/infra/auth/models/order'
+import { orderSchema } from '@/infra/auth/abac'
 import { UserPayload } from '@/infra/auth/strategies/jwt.strategy'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 

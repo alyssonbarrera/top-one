@@ -37,12 +37,15 @@ export class UpdateProductUseCase {
 
   async execute({
     id,
+    name,
+    price,
+    discount,
+    description,
     currentUser,
-    ...data
   }: UpdateProductUseCaseRequest): Promise<UpdateProductUseCaseResponse> {
     const { cannot } = getUserPermissions(currentUser.sub, currentUser.role)
 
-    if (cannot('apply-discount', 'Product') && data.discount) {
+    if (cannot('apply-discount', 'Product') && discount) {
       return left(new ForbiddenError('apply discount', 'product'))
     }
 
@@ -56,10 +59,10 @@ export class UpdateProductUseCase {
       return left(new ProductNotFoundError())
     }
 
-    product.name = data.name ?? product.name
-    product.description = data.description ?? product.description
-    product.price = new Decimal(data.price ?? product.price)
-    product.discount = new Decimal(data.discount ?? product.discount)
+    product.name = name ?? product.name
+    product.description = description ?? product.description
+    product.price = new Decimal(price ?? product.price)
+    product.discount = new Decimal(discount ?? product.discount)
     product.updatedAt = new Date()
 
     await this.productsRepository.update(product)
