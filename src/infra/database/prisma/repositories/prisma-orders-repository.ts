@@ -51,6 +51,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     const orders = await this.prisma.order.findMany({
       where: {
         status: filters.status,
+        vendorId: filters.vendorId,
       },
       include: {
         vendor: {

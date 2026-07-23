@@ -12,6 +12,11 @@ async function bootstrap() {
   const port = configService.get('PORT')
 
   app.setGlobalPrefix('api')
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
 
   app
     .listen(port)

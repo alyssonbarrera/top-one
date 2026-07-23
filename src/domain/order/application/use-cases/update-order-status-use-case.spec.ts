@@ -23,7 +23,8 @@ describe('Update Order Use Case', () => {
   const admin = makeUser({
     role: UserRole.ADMIN,
   })
-  const vendor = makeUser()
+  const vendor = makeUser({ role: UserRole.VENDOR })
+  const anotherVendor = makeUser({ role: UserRole.VENDOR })
   const client = makeClient({
     createdByUserId: admin.id,
   })
@@ -78,6 +79,21 @@ describe('Update Order Use Case', () => {
       currentUser: {
         ...currentUser,
         role: UserRole.ADMIN,
+      },
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should not be able to update a order status from another vendor', async () => {
+    inMemoryOrdersRepository.items.push(order)
+
+    const result = await sut.execute({
+      ...orderData,
+      currentUser: {
+        sub: anotherVendor.id.toString(),
+        role: UserRole.VENDOR,
       },
     })
 

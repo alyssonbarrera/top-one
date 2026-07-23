@@ -4,7 +4,6 @@ import { Either, left, right } from '@/core/either'
 import { OrderStatus } from '@/core/enums/order-status'
 import { ForbiddenError } from '@/core/errors/forbidden-error'
 
-import { orderSchema } from '@/infra/auth/abac'
 import { UserPayload } from '@/infra/auth/strategies/jwt.strategy'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
@@ -35,17 +34,14 @@ export class FetchOrdersUseCase {
   }: FetchOrdersUseCaseRequest): Promise<FetchOrdersUseCaseResponse> {
     const { cannot } = getUserPermissions(currentUser.sub, currentUser.role)
 
-    const order = orderSchema.parse({
-      vendorId: currentUser.sub,
-    })
-
-    if (cannot('get', order)) {
+    if (cannot('get', 'Order')) {
       return left(new ForbiddenError('get', 'order'))
     }
 
     const orders = await this.ordersRepository.findAll({
       filters: {
         status,
+        vendorId: currentUser.role === 'VENDOR' ? currentUser.sub : undefined,
       },
     })
 

@@ -8,6 +8,7 @@ import { OrderWithVendorAndClient } from '../../enterprise/value-objects/order-w
 export type FindAllOrdersParams = {
   filters?: {
     status?: OrderStatus
+    vendorId?: string
   }
 }
 

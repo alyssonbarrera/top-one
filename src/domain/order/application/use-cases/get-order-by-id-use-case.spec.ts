@@ -1,5 +1,4 @@
 import { makeClient } from '@test/factories/make-client'
-import { makeOrderWithVendor } from '@test/factories/make-order-with-vendor'
 import { makeOrderWithVendorAndClient } from '@test/factories/make-order-with-vendor-and-client'
 import { makeUser } from '@test/factories/make-user'
 import { InMemoryOrdersRepository } from '@test/repositories/in-memory-orders-repository'
@@ -23,7 +22,8 @@ describe('Get Order By Id Use Case', () => {
   const admin = makeUser({
     role: UserRole.ADMIN,
   })
-  const vendor = makeUser()
+  const vendor = makeUser({ role: UserRole.VENDOR })
+  const anotherVendor = makeUser({ role: UserRole.VENDOR })
   const client = makeClient({
     createdByUserId: admin.id,
   })
@@ -82,17 +82,37 @@ describe('Get Order By Id Use Case', () => {
   })
 
   it('should not be able to get a order when user is not allowed', async () => {
-    const order = makeOrderWithVendor({
+    const order = makeOrderWithVendorAndClient({
       clientId: client.id,
       vendorId: vendor.id,
     })
 
-    inMemoryOrdersRepository.itemsWithVendor.push(order)
+    inMemoryOrdersRepository.itemsWithVendorAndClient.push(order)
 
     const result = await sut.execute({
       currentUser: {
         sub: admin.id.toString(),
         role: UserRole.ADMIN,
+      },
+      id: order.orderId.toString(),
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should not be able to get a order from another vendor', async () => {
+    const order = makeOrderWithVendorAndClient({
+      clientId: client.id,
+      vendorId: vendor.id,
+    })
+
+    inMemoryOrdersRepository.itemsWithVendorAndClient.push(order)
+
+    const result = await sut.execute({
+      currentUser: {
+        sub: anotherVendor.id.toString(),
+        role: UserRole.VENDOR,
       },
       id: order.orderId.toString(),
     })

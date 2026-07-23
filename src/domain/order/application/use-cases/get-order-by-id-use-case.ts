@@ -32,20 +32,20 @@ export class GetOrderByIdUseCase {
     id,
     currentUser,
   }: GetOrderByIdUseCaseRequest): Promise<GetOrderByIdUseCaseResponse> {
-    const { cannot } = getUserPermissions(currentUser.sub, currentUser.role)
-
-    const vendorOrder = orderSchema.parse({
-      vendorId: currentUser.sub,
-    })
-
-    if (cannot('get', vendorOrder)) {
-      return left(new ForbiddenError('get', 'order'))
-    }
-
     const order = await this.ordersRepository.findByIdWithVendorAndClient(id)
 
     if (!order) {
       return left(new OrderNotFoundError())
+    }
+
+    const { cannot } = getUserPermissions(currentUser.sub, currentUser.role)
+
+    const vendorOrder = orderSchema.parse({
+      vendorId: order.vendorId.toString(),
+    })
+
+    if (cannot('get', vendorOrder)) {
+      return left(new ForbiddenError('get', 'order'))
     }
 
     return right({

@@ -22,7 +22,8 @@ describe('Delete Order Use Case', () => {
   const admin = makeUser({
     role: UserRole.ADMIN,
   })
-  const vendor = makeUser()
+  const vendor = makeUser({ role: UserRole.VENDOR })
+  const anotherVendor = makeUser({ role: UserRole.VENDOR })
   const client = makeClient({
     createdByUserId: admin.id,
   })
@@ -71,6 +72,26 @@ describe('Delete Order Use Case', () => {
       currentUser: {
         sub: admin.id.toString(),
         role: UserRole.ADMIN,
+      },
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should not be able to delete a order from another vendor', async () => {
+    const order = makeOrder({
+      clientId: client.id,
+      vendorId: vendor.id,
+    })
+
+    inMemoryOrdersRepository.items.push(order)
+
+    const result = await sut.execute({
+      id: order.id.toString(),
+      currentUser: {
+        sub: anotherVendor.id.toString(),
+        role: UserRole.VENDOR,
       },
     })
 

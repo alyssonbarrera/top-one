@@ -46,7 +46,7 @@ export class UpdateOrderStatusUseCase {
 
     const vendorOrder = orderSchema.parse({
       id,
-      vendorId: currentUser.sub,
+      vendorId: order.vendorId.toString(),
       status: order.status,
     })
 

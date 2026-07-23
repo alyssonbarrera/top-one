@@ -22,7 +22,8 @@ describe('Fetch Orders Use Case', () => {
   const admin = makeUser({
     role: UserRole.ADMIN,
   })
-  const vendor = makeUser()
+  const vendor = makeUser({ role: UserRole.VENDOR })
+  const anotherVendor = makeUser({ role: UserRole.VENDOR })
   const client = makeClient({
     createdByUserId: admin.id,
   })
@@ -139,5 +140,32 @@ describe('Fetch Orders Use Case', () => {
 
     expect(result.isLeft()).toBeTruthy()
     expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should only fetch orders belonging to the current vendor', async () => {
+    const order1 = makeOrderWithVendorAndClient({
+      clientId: client.id,
+      vendorId: vendor.id,
+    })
+
+    const order2 = makeOrderWithVendorAndClient({
+      clientId: client.id,
+      vendorId: anotherVendor.id,
+    })
+
+    inMemoryOrdersRepository.itemsWithVendorAndClient.push(order1, order2)
+
+    const result = await sut.execute({
+      currentUser,
+    })
+
+    expect(result.isRight()).toBeTruthy()
+
+    if (result.isRight()) {
+      expect(result.value.orders).toHaveLength(1)
+      expect(result.value.orders[0].vendorId.toString()).toEqual(
+        vendor.id.toString(),
+      )
+    }
   })
 })

@@ -30,15 +30,21 @@ export class InMemoryOrdersRepository implements OrdersRepository {
   }
 
   async findAll(
-    params: FindAllOrdersParams,
+    params?: FindAllOrdersParams,
   ): Promise<OrderWithVendorAndClient[]> {
-    if (params.filters?.status) {
-      return this.itemsWithVendorAndClient.filter(
-        (order) => order.status === params.filters?.status,
+    let orders = this.itemsWithVendorAndClient
+
+    if (params?.filters?.status) {
+      orders = orders.filter((order) => order.status === params.filters?.status)
+    }
+
+    if (params?.filters?.vendorId) {
+      orders = orders.filter(
+        (order) => order.vendorId.toString() === params?.filters?.vendorId,
       )
     }
 
-    return this.itemsWithVendorAndClient
+    return orders
   }
 
   async findById(id: string) {

@@ -34,6 +34,7 @@ let admin: User
 let product: Product
 let currentUser: UserPayload
 let vendor: User
+let anotherVendor: User
 let clientOne: Client
 let clientTwo: Client
 
@@ -49,7 +50,8 @@ describe('Create Order Use Case', () => {
       role: UserRole.ADMIN,
     })
 
-    vendor = makeUser()
+    vendor = makeUser({ role: UserRole.VENDOR })
+    anotherVendor = makeUser({ role: UserRole.VENDOR })
 
     clientOne = makeClient({
       createdByUserId: admin.id,
@@ -194,5 +196,21 @@ describe('Create Order Use Case', () => {
 
     expect(result.isRight()).toBeTruthy()
     expect(inMemoryOrdersRepository.items).toHaveLength(0)
+  })
+
+  it('should not be able to update an order from another vendor', async () => {
+    inMemoryOrdersRepository.items.push(order)
+
+    const result = await sut.execute({
+      id: order.id.toString(),
+      status: OrderStatus.PROCESSING,
+      currentUser: {
+        sub: anotherVendor.id.toString(),
+        role: UserRole.VENDOR,
+      },
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(ForbiddenError)
   })
 })
