@@ -21,7 +21,8 @@ describe('Get Order By Client Id Use Case', () => {
   const admin = makeUser({
     role: UserRole.ADMIN,
   })
-  const vendor = makeUser()
+  const vendor = makeUser({ role: UserRole.VENDOR })
+  const anotherVendor = makeUser({ role: UserRole.VENDOR })
   const client = makeClient({
     createdByUserId: admin.id,
   })
@@ -84,5 +85,45 @@ describe('Get Order By Client Id Use Case', () => {
 
     expect(result.isLeft()).toBeTruthy()
     expect(result.value).toBeInstanceOf(ForbiddenError)
+  })
+
+  it('should only fetch orders belonging to the current vendor', async () => {
+    const order1 = makeOrderWithVendor({
+      clientId: client.id,
+      vendorId: vendor.id,
+    })
+
+    const order2 = makeOrderWithVendor({
+      clientId: client.id,
+      vendorId: anotherVendor.id,
+    })
+
+    inMemoryOrdersRepository.itemsWithVendor.push(order1, order2)
+
+    const result = await sut.execute({
+      currentUser,
+      clientId: client.id.toString(),
+    })
+
+    expect(result.isRight()).toBeTruthy()
+    expect(result.value).toEqual(
+      expect.objectContaining({
+        orders: expect.arrayContaining([
+          expect.objectContaining({
+            vendorId: order1.vendorId,
+            clientId: order1.clientId,
+            orderId: order1.orderId,
+            status: order1.status,
+            vendor: {
+              id: order1.vendor.id,
+              name: order1.vendor.name,
+              email: order1.vendor.email,
+            },
+            createdAt: order1.createdAt,
+            totalPrice: order1.totalPrice,
+          }),
+        ]),
+      }),
+    )
   })
 })

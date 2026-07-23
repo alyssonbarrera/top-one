@@ -94,9 +94,9 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return orders.map(PrismaOrderMapper.toDomain)
   }
 
-  async findByClientIdWithVendor(clientId: string) {
+  async findByClientIdWithVendor(clientId: string, vendorId?: string) {
     const orders = await this.prisma.order.findMany({
-      where: { clientId },
+      where: { clientId, vendorId },
       include: {
         vendor: {
           select: {

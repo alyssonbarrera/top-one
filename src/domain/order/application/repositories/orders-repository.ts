@@ -33,6 +33,7 @@ export abstract class OrdersRepository {
   abstract findByClientId(clientId: string): Promise<Order[]>
   abstract findByClientIdWithVendor(
     clientId: string,
+    vendorId?: string,
   ): Promise<OrderWithVendor[]>
 
   abstract findByVendorId(vendorId: string): Promise<Order[]>

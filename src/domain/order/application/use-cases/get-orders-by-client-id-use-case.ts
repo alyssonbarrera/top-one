@@ -37,8 +37,10 @@ export class GetOrdersByClientIdUseCase {
       return left(new ForbiddenError('get', 'order'))
     }
 
-    const orders =
-      await this.ordersRepository.findByClientIdWithVendor(clientId)
+    const orders = await this.ordersRepository.findByClientIdWithVendor(
+      clientId,
+      currentUser.role === 'VENDOR' ? currentUser.sub : undefined,
+    )
 
     return right({
       orders,

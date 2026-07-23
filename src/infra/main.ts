@@ -11,9 +11,11 @@ async function bootstrap() {
   const configService = app.get(EnvService)
   const port = configService.get('PORT')
 
+  const corsOrigins = configService.get('CORS_ORIGINS')
+
   app.setGlobalPrefix('api')
   app.enableCors({
-    origin: '*',
+    origin: corsOrigins ? corsOrigins.split(',') : [],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })

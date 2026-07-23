@@ -6,7 +6,6 @@ import { OrderWithVendor } from '@/domain/order/enterprise/value-objects/order-w
 
 type PrismaOrderWithVendor = PrismaOrder & {
   vendor: Pick<PrismaUser, 'id' | 'name' | 'email'>
-  client: Pick<PrismaUser, 'id' | 'name' | 'email'>
 }
 
 export class PrismaOrderWithVendorMapper {
